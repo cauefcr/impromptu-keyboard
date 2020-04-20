@@ -59,12 +59,9 @@ func main() {
 	m["b"] = MIDINote{Note: 22, Velocity: vel, Duration: 100}
 	m["n"] = MIDINote{Note: 23, Velocity: vel, Duration: 100}
 	m["m"] = MIDINote{Note: 24, Velocity: vel, Duration: 100}
-	// pressed := map[string]bool{}
 
 	fmt.Println("Starting sequence. Press Ctrl+C to quit...")
 
-	// portmidi.Initialize()
-	// defer portmidi.Terminate()
 	portmidi.Initialize()
 	defer portmidi.Terminate()
 	id, _ := portmidi.DefaultOutputDeviceID()
@@ -75,7 +72,6 @@ func main() {
 
 	sink := out.Sink()
 
-	// fmt.Printf("%+v", portmidi.CountDevices())
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt)
 	on := true
@@ -120,21 +116,15 @@ func main() {
 	})
 	for k, v := range m {
 		val := v
-		// key := k
 		hook.Register(hook.KeyDown, []string{k}, func(e hook.Event) {
 			if on {
-				// !pressed[key]aqwaqweqqsdsaaaaqqasjkjkkkkkjhjkkjjaaasqwesssasdasasasasasasasasadadaqqdqdqdqdqdqdqdqdqdqdqdqdqqweqwqwqqweryuuiopasdfg
 				fmt.Printf("\r%v    ", toNote(val.Note))
 				sink <- portmidi.Event{Timestamp: int32(time.Now().Unix()), Message: portmidi.NewMessage(0x90, byte(val.Note+offset), byte(val.Velocity))}
-				// pressed[key] = true
 			}
 		})
 		hook.Register(hook.KeyUp, []string{k}, func(e hook.Event) {
 			if on {
-				// pressed[key]
-				fmt.Println("plom")
 				sink <- portmidi.Event{Timestamp: int32(time.Now().Unix()), Message: portmidi.NewMessage(0x80, byte(val.Note+offset), byte(val.Velocity))}
-				// pressed[key] = false
 			}
 		})
 	}
